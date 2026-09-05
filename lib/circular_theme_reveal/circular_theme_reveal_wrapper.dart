@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'circular_reveal_clipper.dart';
 import 'circular_theme_reveal_controller.dart';
 import 'reveal_mode.dart';
+import 'reveal_shape.dart';
 
 /// Rock-solid, hardware-accelerated Circular Theme Reveal widget.
 /// Wraps MaterialApp.builder or any screen and delegates all animation properties
@@ -50,6 +51,8 @@ class CircularThemeRevealState extends State<CircularThemeReveal>
   bool _isTransitioning = false;
   bool _isExpanding = true;
   Offset _center = Offset.zero;
+  RevealShape _currentShape = RevealShape.circle;
+  CustomRevealPathBuilder? _currentCustomBuilder;
 
   CircularThemeRevealController get activeController =>
       widget.controller ?? _internalController;
@@ -154,6 +157,8 @@ class CircularThemeRevealState extends State<CircularThemeReveal>
     BuildContext? fromContext,
     Offset? center,
     RevealMode? revealMode,
+    RevealShape? shape,
+    CustomRevealPathBuilder? customPathBuilder,
     Duration? duration,
     Curve? curve,
     double? maxPixelRatio,
@@ -207,6 +212,9 @@ class CircularThemeRevealState extends State<CircularThemeReveal>
     }
 
     _center = origin;
+    _currentShape = shape ?? activeController.shape;
+    _currentCustomBuilder =
+        customPathBuilder ?? activeController.customPathBuilder;
 
     // 2. Capture screenshot of the CURRENT theme BEFORE switching
     try {
@@ -285,6 +293,8 @@ class CircularThemeRevealState extends State<CircularThemeReveal>
                       clipper: CircularRevealClipper(
                         fraction: _animation.value,
                         center: _center,
+                        shape: _currentShape,
+                        customPathBuilder: _currentCustomBuilder,
                       ),
                       child: child,
                     );
@@ -310,6 +320,8 @@ class CircularThemeRevealState extends State<CircularThemeReveal>
                       clipper: CircularRevealClipper(
                         fraction: (1.0 - _animation.value).clamp(0.0, 1.0),
                         center: _center,
+                        shape: _currentShape,
+                        customPathBuilder: _currentCustomBuilder,
                       ),
                       child: snapshotWidget,
                     );

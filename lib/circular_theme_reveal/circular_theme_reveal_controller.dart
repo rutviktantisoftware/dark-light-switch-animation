@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'reveal_mode.dart';
+import 'reveal_shape.dart';
 
 /// Delegate interface for triggering circular theme reveals.
 abstract class CircularThemeRevealDelegate {
@@ -9,6 +10,8 @@ abstract class CircularThemeRevealDelegate {
     BuildContext? fromContext,
     Offset? center,
     RevealMode? revealMode,
+    RevealShape? shape,
+    CustomRevealPathBuilder? customPathBuilder,
     Duration? duration,
     Curve? curve,
     double? maxPixelRatio,
@@ -16,26 +19,49 @@ abstract class CircularThemeRevealDelegate {
 }
 
 /// Dedicated controller for [CircularThemeReveal].
-/// Manages animation duration, curve, reveal mode, and triggers reveals directly.
+/// Manages animation duration, curve, reveal mode, shape, and triggers reveals directly.
 class CircularThemeRevealController extends ChangeNotifier {
   Duration _duration;
   Curve _curve;
   RevealMode _revealMode;
+  RevealShape _shape;
+  CustomRevealPathBuilder? _customPathBuilder;
   CircularThemeRevealDelegate? _delegate;
 
   CircularThemeRevealController({
     Duration duration = const Duration(milliseconds: 700),
     Curve curve = Curves.easeInOutCubic,
     RevealMode revealMode = RevealMode.expandAndCollapse,
+    RevealShape shape = RevealShape.circle,
+    CustomRevealPathBuilder? customPathBuilder,
   })  : _duration = duration,
         _curve = curve,
-        _revealMode = revealMode;
+        _revealMode = revealMode,
+        _shape = shape,
+        _customPathBuilder = customPathBuilder;
 
   Duration get duration => _duration;
   double get durationMs => _duration.inMilliseconds.toDouble();
   Curve get curve => _curve;
   RevealMode get revealMode => revealModeValue;
   RevealMode get revealModeValue => _revealMode;
+  RevealShape get shape => _shape;
+  CustomRevealPathBuilder? get customPathBuilder => _customPathBuilder;
+
+  /// Updates the reveal animation shape
+  void setShape(RevealShape newShape) {
+    if (_shape != newShape) {
+      _shape = newShape;
+      notifyListeners();
+    }
+  }
+
+  /// Sets a user-defined custom reveal shape path builder
+  void setCustomShape(CustomRevealPathBuilder builder) {
+    _shape = RevealShape.custom;
+    _customPathBuilder = builder;
+    notifyListeners();
+  }
 
   /// Whether a visual reveal widget is currently attached to this controller
   bool get isAttached => _delegate != null;
@@ -58,6 +84,8 @@ class CircularThemeRevealController extends ChangeNotifier {
     BuildContext? fromContext,
     Offset? center,
     RevealMode? revealMode,
+    RevealShape? shape,
+    CustomRevealPathBuilder? customPathBuilder,
     Duration? duration,
     Curve? curve,
     double? maxPixelRatio,
@@ -69,6 +97,8 @@ class CircularThemeRevealController extends ChangeNotifier {
         fromContext: fromContext,
         center: center,
         revealMode: revealMode,
+        shape: shape ?? _shape,
+        customPathBuilder: customPathBuilder ?? _customPathBuilder,
         duration: duration,
         curve: curve,
         maxPixelRatio: maxPixelRatio,

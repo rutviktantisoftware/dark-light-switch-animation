@@ -9,7 +9,7 @@ A rock-solid, hardware-accelerated **Circular Theme Reveal** animation for Flutt
 
 ---
 
-https://github.com/user-attachments/assets/27368ed5-a335-40ed-be49-923de5fa27b4
+https://github.com/user-attachments/assets/37a51385-5e7c-4410-96c4-5473714c1ae8
 
 ---
 
@@ -18,6 +18,7 @@ https://github.com/user-attachments/assets/27368ed5-a335-40ed-be49-923de5fa27b4
 - 🚀 **1-Line Trigger API**: Trigger the reveal from anywhere via `themeCtrl.changeTheme(fromKey: key)` or `fromContext: context`.
 - ⚡ **60/120 FPS Hardware Accelerated**: Captures an instant snapshot of the outgoing theme and clips the incoming theme using an optimized `CustomClipper<Path>`.
 - 🎯 **Pinpoint Origin Detection**: Automatically computes exact button center coordinates from any `GlobalKey`, `BuildContext`, or custom `Offset`.
+- 🔷 **Multi-Shape & Custom Shapes**: Supports Circle, Star, Rounded Rectangle, Triangle, and arbitrary user-defined custom paths via `CustomRevealPathBuilder`.
 - 🔄 **3 Reveal Direction Modes**:
   - `RevealMode.expandAndCollapse`: Light ➔ Dark expands outward, Dark ➔ Light collapses inward.
   - `RevealMode.alwaysExpandOut`: Both theme changes expand outward from the origin.
@@ -40,7 +41,8 @@ lib/
 │   ├── circular_theme_reveal.dart            # Export barrel file
 │   ├── circular_theme_reveal_controller.dart # Standalone controller & delegate
 │   ├── circular_theme_reveal_wrapper.dart    # Core transition wrapper widget
-│   └── reveal_mode.dart                     # Direction mode enum
+│   ├── reveal_mode.dart                     # Direction mode enum
+│   └── reveal_shape.dart                    # Shape enum & custom builder
 ├── screens/
 │   ├── home_screen.dart                     # Showcase dashboard with FAB trigger
 │   └── theme_settings_screen.dart           # Interactive animation playground
@@ -159,6 +161,26 @@ themeCtrl.changeTheme(
 | `RevealMode.expandAndCollapse` | Light ➔ Dark expands OUTward, Dark ➔ Light collapses INward |
 | `RevealMode.alwaysExpandOut` | Both Light ➔ Dark and Dark ➔ Light expand OUTward |
 | `RevealMode.alwaysCollapseIn` | Both Light ➔ Dark and Dark ➔ Light collapse INward |
+
+### Supported Reveal Shapes
+| Shape | Description |
+| :--- | :--- |
+| `RevealShape.circle` | Smooth geometric expanding / collapsing circle (default) |
+| `RevealShape.roundedRectangle` | SVG-scaled rounded rectangle |
+| `RevealShape.triangle` | Smooth corner-curved SVG triangle |
+| `RevealShape.star` | Multi-point SVG-rendered star |
+| `RevealShape.custom` | User-defined custom path via `CustomRevealPathBuilder` |
+
+### Setting a Custom Reveal Shape
+You can provide any arbitrary SVG or mathematical shape by passing a `CustomRevealPathBuilder`:
+
+```dart
+themeCtrl.setCustomShape((Size size, Offset center, double fraction, double maxRadius) {
+  final double radius = maxRadius * fraction;
+  // Return any Path you like, scaled from `center`!
+  return Path()..addOval(Rect.fromCircle(center: center, radius: radius));
+});
+```
 
 ---
 

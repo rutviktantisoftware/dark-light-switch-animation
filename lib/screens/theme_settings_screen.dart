@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../circular_theme_reveal/reveal_mode.dart';
+import '../circular_theme_reveal/reveal_shape.dart';
 import '../theme/theme_controller.dart';
 
 /// Screen for customizing circular reveal settings and testing trigger coordinates
@@ -111,7 +112,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${_themeCtrl.durationMs.toInt()} ms  •  ${_curveName(_themeCtrl.selectedCurve)}',
+                                '${_themeCtrl.durationMs.toInt()} ms  •  ${_curveName(_themeCtrl.selectedCurve)}  •  ${_shapeName(_themeCtrl.shape)}',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: colorScheme.primary,
@@ -120,6 +121,88 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                               ),
                             ],
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Reveal Shape Selector Card
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.category_rounded,
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Reveal Shape',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Choose the geometric shape used for the ripple transition:',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 14),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _shapeOptionChip(
+                              label: 'Circle',
+                              icon: Icons.circle_outlined,
+                              shape: RevealShape.circle,
+                              colorScheme: colorScheme,
+                            ),
+                            _shapeOptionChip(
+                              label: 'Star',
+                              icon: Icons.star_border_rounded,
+                              shape: RevealShape.star,
+                              colorScheme: colorScheme,
+                            ),
+                            _shapeOptionChip(
+                              label: 'Rounded Rect',
+                              icon: Icons.crop_square_rounded,
+                              shape: RevealShape.roundedRectangle,
+                              colorScheme: colorScheme,
+                            ),
+                            _shapeOptionChip(
+                              label: 'Triangle',
+                              icon: Icons.change_history_rounded,
+                              shape: RevealShape.triangle,
+                              colorScheme: colorScheme,
+                            ),
+                            ChoiceChip(
+                              avatar: Icon(
+                                Icons.favorite_rounded,
+                                size: 18,
+                                color: _themeCtrl.shape == RevealShape.custom
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.primary,
+                              ),
+                              label: const Text('Custom (Heart)'),
+                              selected:
+                                  _themeCtrl.shape == RevealShape.custom,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  _themeCtrl.setCustomShape(_buildHeartPath);
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -378,6 +461,95 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
         if (selected) _themeCtrl.setCurve(curve);
       },
     );
+  }
+
+  Widget _shapeOptionChip({
+    required String label,
+    required IconData icon,
+    required RevealShape shape,
+    required ColorScheme colorScheme,
+  }) {
+    final isSelected = _themeCtrl.shape == shape;
+    return ChoiceChip(
+      avatar: Icon(
+        icon,
+        size: 18,
+        color: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+      ),
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) _themeCtrl.setShape(shape);
+      },
+    );
+  }
+
+  String _shapeName(RevealShape shape) {
+    switch (shape) {
+      case RevealShape.circle:
+        return 'Circle';
+      case RevealShape.star:
+        return 'Star';
+      case RevealShape.roundedRectangle:
+        return 'Rounded Rect';
+      case RevealShape.triangle:
+        return 'Triangle';
+      case RevealShape.custom:
+        return 'Custom (Heart)';
+    }
+  }
+
+  /// Example user-defined custom path builder creating a scalable heart shape
+  static Path _buildHeartPath(
+      Size size, Offset center, double fraction, double maxRadius) {
+    final double targetDimension = maxRadius * 2.6 * fraction;
+    const double baseWidth = 100.0;
+    const double baseHeight = 100.0;
+    const double baseCenterX = 50.0;
+    const double baseCenterY = 45.0;
+
+    final double scaleX = targetDimension / baseWidth;
+    final double scaleY = targetDimension / baseHeight;
+
+    final double translateX = center.dx - (baseCenterX * scaleX);
+    final double translateY = center.dy - (baseCenterY * scaleY);
+
+    final Path path = Path();
+    path.moveTo(translateX + (50 * scaleX), translateY + (30 * scaleY));
+    path.cubicTo(
+      translateX + (47 * scaleX),
+      translateY + (12 * scaleY),
+      translateX + (20 * scaleX),
+      translateY + (10 * scaleY),
+      translateX + (10 * scaleX),
+      translateY + (35 * scaleY),
+    );
+    path.cubicTo(
+      translateX + (0 * scaleX),
+      translateY + (60 * scaleY),
+      translateX + (30 * scaleX),
+      translateY + (80 * scaleY),
+      translateX + (50 * scaleX),
+      translateY + (98 * scaleY),
+    );
+    path.cubicTo(
+      translateX + (70 * scaleX),
+      translateY + (80 * scaleY),
+      translateX + (100 * scaleX),
+      translateY + (60 * scaleY),
+      translateX + (90 * scaleX),
+      translateY + (35 * scaleY),
+    );
+    path.cubicTo(
+      translateX + (80 * scaleX),
+      translateY + (10 * scaleY),
+      translateX + (53 * scaleX),
+      translateY + (12 * scaleY),
+      translateX + (50 * scaleX),
+      translateY + (30 * scaleY),
+    );
+    path.close();
+    return path;
   }
 
   String _curveName(Curve curve) {

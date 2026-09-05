@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../circular_theme_reveal/reveal_mode.dart';
+import '../circular_theme_reveal/reveal_shape.dart';
 import '../theme/theme_controller.dart';
 import 'theme_settings_screen.dart';
 
@@ -226,16 +227,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: _buildMetricCard(
-                        title: 'Theme Speed',
+                        title: 'Speed',
                         value: '${_themeCtrl.durationMs.toInt()} ms',
                         icon: Icons.speed_rounded,
                         colorScheme: colorScheme,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: _buildMetricCard(
-                        title: 'Animation Curve',
+                        title: 'Shape',
+                        value: _shapeLabel(_themeCtrl.shape),
+                        icon: _shapeIcon(_themeCtrl.shape),
+                        colorScheme: colorScheme,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Curve',
                         value: _curveLabel(_themeCtrl.selectedCurve),
                         icon: Icons.timeline_rounded,
                         colorScheme: colorScheme,
@@ -369,6 +379,36 @@ class _HomeScreenState extends State<HomeScreen> {
     if (curve == Curves.fastOutSlowIn) return 'fastOutSlow';
     if (curve == Curves.linear) return 'linear';
     return 'custom';
+  }
+
+  String _shapeLabel(RevealShape shape) {
+    switch (shape) {
+      case RevealShape.circle:
+        return 'Circle';
+      case RevealShape.star:
+        return 'Star';
+      case RevealShape.roundedRectangle:
+        return 'R-Rect';
+      case RevealShape.triangle:
+        return 'Triangle';
+      case RevealShape.custom:
+        return 'Custom';
+    }
+  }
+
+  IconData _shapeIcon(RevealShape shape) {
+    switch (shape) {
+      case RevealShape.circle:
+        return Icons.circle_outlined;
+      case RevealShape.star:
+        return Icons.star_border_rounded;
+      case RevealShape.roundedRectangle:
+        return Icons.crop_square_rounded;
+      case RevealShape.triangle:
+        return Icons.change_history_rounded;
+      case RevealShape.custom:
+        return Icons.favorite_border_rounded;
+    }
   }
 
   Widget _buildModeOption({
